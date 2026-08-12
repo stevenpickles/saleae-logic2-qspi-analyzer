@@ -92,6 +92,21 @@ CMD 0xEB → ADDR 0x001000 → dummy cycles → DE AD BE EF
 
 driven by the live analyzer settings, so every width/CPOL/CPHA combination can be verified end-to-end.
 
+## Unit tests
+
+`tests/` contains a self-contained test suite that runs the real decoder and simulation generator against an in-process mock of the Analyzer SDK runtime (`tests/mock_sdk.cpp`) — no Logic 2 installation needed:
+
+- **Golden tests**: hand-authored waveforms written directly from the QSPI spec, asserting exact decoded values and sample positions (ground truth independent of the simulator).
+- **Permutation sweep**: closed-loop simulate→decode runs across every combination of per-phase width × address length × dummy cycles × CPOL/CPHA × CS polarity (4,320 permutations).
+- **Edge cases**: CS deassert mid-phase (truncation), clock not idle at CS assert, IO2/IO3 unconnected, settings serialization round-trip and validation.
+
+```powershell
+cmake --build build --config Release --target qspi_tests
+ctest --test-dir build -C Release --output-on-failure
+```
+
+Tests build by default; disable with `-DQSPI_BUILD_TESTS=OFF`. CI runs them on every platform.
+
 ## CI
 
 `.github/workflows/build.yml` (from the Saleae template) builds Windows, macOS (x64 + ARM64), and Linux binaries on every push; tagged commits publish a GitHub release with the binaries attached.
