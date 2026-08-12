@@ -4,6 +4,10 @@ A custom Low-Level Analyzer (LLA) for the Saleae Logic 2 software that decodes Q
 
 Built from the [Saleae SampleAnalyzer](https://github.com/saleae/SampleAnalyzer) template against the [Saleae Analyzer SDK](https://github.com/saleae/AnalyzerSDK).
 
+![QSPI analyzer decoding a simulated capture in Logic 2](assets/qspi-simulated-data.png)
+
+*The analyzer decoding its own simulated traffic in Logic 2 demo mode: `CMD 0xEB → ADDR 0x001000 → DUMMY x6 → DE AD BE EF` bubbles on IO0, with typed frames (`enable`/`command`/`address`/`dummy`/`data`/`disable`) in the data table.*
+
 ## Channels
 
 | Signal | Setting | Required |
