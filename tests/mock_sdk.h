@@ -57,10 +57,19 @@ namespace MockSdk
     void SetSampleRate( U32 sample_rate_hz );
     void SetOpLimit( U64 max_channel_data_operations );
 
+    // Models live streaming: DoMoreTransitionsExistInCurrentData only sees transitions at or
+    // before this sample, while blocking queries (GetSampleOfNextEdge and the WouldAdvancing
+    // family) see everything, as if the data arrived while they waited. 0 = no horizon.
+    void SetDataHorizon( U64 sample );
+
     // recorded analyzer output
     const std::vector<Frame>& GetFrames( AnalyzerResults* results );
     const std::vector<RecordedFrameV2>& GetFramesV2( AnalyzerResults* results );
     const std::vector<RecordedMarker>& GetMarkers( AnalyzerResults* results );
+    const std::vector<std::string>& GetTabularText( AnalyzerResults* results );
+
+    // makes UpdateExportProgressAndCheckForCancel report a cancel after N calls (0 = never)
+    void SetExportCancelAfter( U64 update_calls );
 
     // recorded simulation waveforms
     Channel GetSimChannel( SimulationChannelDescriptor* descriptor );

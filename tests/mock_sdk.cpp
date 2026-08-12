@@ -49,6 +49,7 @@ namespace
     U32 g_sample_rate = 1000000;
     U64 g_op_count = 0;
     U64 g_op_limit = 100000000ull;
+    U64 g_data_horizon = 0; // 0 = no horizon
 
     void CountOp()
     {
@@ -216,7 +217,10 @@ U64 AnalyzerChannelData::GetMinimumPulseWidthSoFar()
 bool AnalyzerChannelData::DoMoreTransitionsExistInCurrentData()
 {
     CountOp();
-    return mData->mTransitionsApplied < mData->mChannelData->mTransitions.size();
+    const std::vector<U64>& t = mData->mChannelData->mTransitions;
+    if( mData->mTransitionsApplied >= t.size() )
+        return false;
+    return g_data_horizon == 0 || t[ mData->mTransitionsApplied ] <= g_data_horizon;
 }
 
 // ---------------------------------------------------------------------------
@@ -398,9 +402,16 @@ void AnalyzerResults::GetResultStrings( char const*** result_string_array, U32* 
     *num_strings = static_cast<U32>( mData->mResultStringPointers.size() );
 }
 
+namespace
+{
+    U64 g_export_cancel_after = 0; // 0 = never cancel
+    U64 g_export_update_calls = 0;
+}
+
 bool AnalyzerResults::UpdateExportProgressAndCheckForCancel( U64, U64 )
 {
-    return false;
+    ++g_export_update_calls;
+    return g_export_cancel_after != 0 && g_export_update_calls >= g_export_cancel_after;
 }
 
 void AnalyzerResults::ClearTabularText()
@@ -1169,6 +1180,7 @@ namespace MockSdk
         g_owned_backing_data.clear();
         g_channel_registry.clear();
         g_op_count = 0;
+        g_data_horizon = 0;
     }
 
     AnalyzerChannelData* MakeChannelData( BitState initial_state, const std::vector<U64>& transitions )
@@ -1199,6 +1211,11 @@ namespace MockSdk
         g_op_count = 0;
     }
 
+    void SetDataHorizon( U64 sample )
+    {
+        g_data_horizon = sample;
+    }
+
     const std::vector<Frame>& GetFrames( AnalyzerResults* results )
     {
         return results->GetAnalyzerResultsData()->mFrames;
@@ -1212,6 +1229,17 @@ namespace MockSdk
     const std::vector<RecordedMarker>& GetMarkers( AnalyzerResults* results )
     {
         return results->GetAnalyzerResultsData()->mMarkers;
+    }
+
+    const std::vector<std::string>& GetTabularText( AnalyzerResults* results )
+    {
+        return results->GetAnalyzerResultsData()->mTabularText;
+    }
+
+    void SetExportCancelAfter( U64 update_calls )
+    {
+        g_export_cancel_after = update_calls;
+        g_export_update_calls = 0;
     }
 
     Channel GetSimChannel( SimulationChannelDescriptor* descriptor )
