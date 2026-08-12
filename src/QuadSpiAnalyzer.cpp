@@ -11,6 +11,7 @@ QuadSpiAnalyzer::QuadSpiAnalyzer()
       mSimulationInitilized( false )
 {
     SetAnalyzerSettings( &mSettings );
+    UseFrameV2();
 }
 
 QuadSpiAnalyzer::~QuadSpiAnalyzer()

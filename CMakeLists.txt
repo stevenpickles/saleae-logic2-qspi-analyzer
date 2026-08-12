@@ -26,3 +26,9 @@ src/QuadSpiSimulationDataGenerator.h
 )
 
 add_analyzer_plugin(${PROJECT_NAME} SOURCES ${SOURCES})
+
+option(QSPI_BUILD_TESTS "Build the QSPI analyzer unit tests" ON)
+if(QSPI_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
