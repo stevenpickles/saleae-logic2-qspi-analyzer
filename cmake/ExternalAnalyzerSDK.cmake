@@ -15,8 +15,9 @@ if(NOT TARGET Saleae::AnalyzerSDK)
     FetchContent_Declare(
         analyzersdk
         GIT_REPOSITORY https://github.com/saleae/AnalyzerSDK.git
-        GIT_TAG        master
-        GIT_SHALLOW    True
+        # pinned for reproducible builds (master as of 2026-08-12); GIT_SHALLOW is
+        # incompatible with pinning a commit hash
+        GIT_TAG        e3c4b4ffda1c162c024a5913520aed17c6edb238
         GIT_PROGRESS   True
     )
 
