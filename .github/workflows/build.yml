@@ -1,5 +1,10 @@
 name: Build
 
+# contents: write is required by the publish job to create releases on tag pushes;
+# declared explicitly so the workflow does not depend on the repo's default token setting
+permissions:
+  contents: write
+
 on:
   push:
     branches:

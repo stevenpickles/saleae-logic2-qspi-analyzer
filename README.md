@@ -54,6 +54,16 @@ All values are assembled MSB-first:
 - **Data table / HLA (FrameV2)**: typed frames `enable`, `command` (`cmd`), `address` (`address`, `bits`), `dummy` (`cycles`), `data` (`data`, or `mosi`/`miso` for single-width), `error` (`error`), `disable` — consumable from Python High-Level Analyzers.
 - **CSV export**: `Time [s], Phase, Value, IO1 Value (SIO data only)`.
 
+## Installing from a release
+
+Prebuilt binaries for Windows (x64/ARM64), macOS (x64/ARM64), and Linux (x64/ARM64) are attached to each [GitHub release](https://github.com/stevenpickles/saleae-logic2-qspi-analyzer/releases).
+
+1. Download the archive for your platform and extract it to a folder of your choice.
+2. In Logic 2: **Preferences** (gear icon) → **Custom Low Level Analyzers** → set the search path to that folder.
+3. Restart Logic 2. "QSPI" appears in the analyzer list.
+
+To build from source instead, see below.
+
 ## Building
 
 Requirements: CMake ≥ 3.13, a C++ compiler (Visual Studio 2022 with the C++ workload on Windows), and internet access on first configure (the Analyzer SDK is fetched via CMake FetchContent).
