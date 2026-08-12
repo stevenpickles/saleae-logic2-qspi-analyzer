@@ -77,8 +77,8 @@ void QuadSpiAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& chann
             long_text = std::string( "IO0: " ) + number_str + "; IO1: " + io1_str;
             AddResultString( long_text.c_str() );
         }
-        break;
     }
+    break;
 
     default: // FRAME_ERROR
         AddResultString( "!" );

@@ -26,50 +26,54 @@ QuadSpiAnalyzerSettings::QuadSpiAnalyzerSettings()
       mDummyCycles( 6 ),
       mClockInactiveState( BIT_LOW ),
       mDataValidEdge( AnalyzerEnums::LeadingEdge ),
-      mChipSelectActiveState( BIT_LOW )
+      mChipSelectActiveState( BIT_LOW ),
+      mChipSelectChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mClockChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mData0ChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mData1ChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mData2ChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mData3ChannelInterface( new AnalyzerSettingInterfaceChannel() ),
+      mCommandBusWidthInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mAddressBusWidthInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mDataBusWidthInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mAddressBitsInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mDummyCyclesInterface( new AnalyzerSettingInterfaceInteger() ),
+      mClockInactiveStateInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mDataValidEdgeInterface( new AnalyzerSettingInterfaceNumberList() ),
+      mChipSelectActiveStateInterface( new AnalyzerSettingInterfaceNumberList() )
 {
-    mChipSelectChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mChipSelectChannelInterface->SetTitleAndTooltip( "CS", "Chip Select" );
     mChipSelectChannelInterface->SetChannel( mChipSelectChannel );
 
-    mClockChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mClockChannelInterface->SetTitleAndTooltip( "SCK", "Serial Clock" );
     mClockChannelInterface->SetChannel( mClockChannel );
 
-    mData0ChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mData0ChannelInterface->SetTitleAndTooltip( "IO0 (MOSI)", "Data line 0" );
     mData0ChannelInterface->SetChannel( mData0Channel );
 
-    mData1ChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mData1ChannelInterface->SetTitleAndTooltip( "IO1 (MISO)", "Data line 1" );
     mData1ChannelInterface->SetChannel( mData1Channel );
 
-    mData2ChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mData2ChannelInterface->SetTitleAndTooltip( "IO2 (WP)", "Data line 2 (required for quad width)" );
     mData2ChannelInterface->SetChannel( mData2Channel );
     mData2ChannelInterface->SetSelectionOfNoneIsAllowed( true );
 
-    mData3ChannelInterface.reset( new AnalyzerSettingInterfaceChannel() );
     mData3ChannelInterface->SetTitleAndTooltip( "IO3 (HOLD)", "Data line 3 (required for quad width)" );
     mData3ChannelInterface->SetChannel( mData3Channel );
     mData3ChannelInterface->SetSelectionOfNoneIsAllowed( true );
 
-    mCommandBusWidthInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mCommandBusWidthInterface->SetTitleAndTooltip( "Command Width", "IO lines used during the command (opcode) phase" );
     AddBusWidthOptions( *mCommandBusWidthInterface );
     mCommandBusWidthInterface->SetNumber( mCommandBusWidth );
 
-    mAddressBusWidthInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mAddressBusWidthInterface->SetTitleAndTooltip( "Address Width", "IO lines used during the address phase" );
     AddBusWidthOptions( *mAddressBusWidthInterface );
     mAddressBusWidthInterface->SetNumber( mAddressBusWidth );
 
-    mDataBusWidthInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mDataBusWidthInterface->SetTitleAndTooltip( "Data Width", "IO lines used during the data phase" );
     AddBusWidthOptions( *mDataBusWidthInterface );
     mDataBusWidthInterface->SetNumber( mDataBusWidth );
 
-    mAddressBitsInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mAddressBitsInterface->SetTitleAndTooltip( "Address Bits", "Length of the address phase" );
     mAddressBitsInterface->AddNumber( 0.0, "No address phase", "Transactions go straight from command to dummy/data" );
     mAddressBitsInterface->AddNumber( 8.0, "8 bits", "" );
@@ -78,7 +82,6 @@ QuadSpiAnalyzerSettings::QuadSpiAnalyzerSettings()
     mAddressBitsInterface->AddNumber( 32.0, "32 bits", "Typical for QSPI flash over 16 MB" );
     mAddressBitsInterface->SetNumber( mAddressBits );
 
-    mDummyCyclesInterface.reset( new AnalyzerSettingInterfaceInteger() );
     mDummyCyclesInterface->SetTitleAndTooltip( "Dummy Cycles",
                                                "Clock cycles between the address and data phases. Count continuous-read "
                                                "mode cycles here as well." );
@@ -86,19 +89,16 @@ QuadSpiAnalyzerSettings::QuadSpiAnalyzerSettings()
     mDummyCyclesInterface->SetMax( 63 );
     mDummyCyclesInterface->SetInteger( mDummyCycles );
 
-    mClockInactiveStateInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mClockInactiveStateInterface->SetTitleAndTooltip( "Clock Polarity (CPOL)", "Clock line state when inactive" );
     mClockInactiveStateInterface->AddNumber( BIT_LOW, "CPOL = 0 (clock idles low)", "" );
     mClockInactiveStateInterface->AddNumber( BIT_HIGH, "CPOL = 1 (clock idles high)", "" );
     mClockInactiveStateInterface->SetNumber( mClockInactiveState );
 
-    mDataValidEdgeInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mDataValidEdgeInterface->SetTitleAndTooltip( "Clock Phase (CPHA)", "Clock edge on which data is sampled" );
     mDataValidEdgeInterface->AddNumber( AnalyzerEnums::LeadingEdge, "CPHA = 0 (data valid on leading edge)", "" );
     mDataValidEdgeInterface->AddNumber( AnalyzerEnums::TrailingEdge, "CPHA = 1 (data valid on trailing edge)", "" );
     mDataValidEdgeInterface->SetNumber( mDataValidEdge );
 
-    mChipSelectActiveStateInterface.reset( new AnalyzerSettingInterfaceNumberList() );
     mChipSelectActiveStateInterface->SetTitleAndTooltip( "CS Active State", "Chip select level during a transaction" );
     mChipSelectActiveStateInterface->AddNumber( BIT_LOW, "Active Low (typical)", "" );
     mChipSelectActiveStateInterface->AddNumber( BIT_HIGH, "Active High", "" );

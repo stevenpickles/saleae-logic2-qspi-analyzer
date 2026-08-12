@@ -104,8 +104,30 @@ jobs:
       with:
         name: linux_arm64
         path: ${{github.workspace}}/build/Analyzers/*.so
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install LLVM tools
+      run: sudo apt-get update && sudo apt-get install -y llvm jq
+    - name: Build instrumented tests
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug -DQSPI_COVERAGE=ON \
+          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        cmake --build build --target qspi_tests
+    - name: Run tests
+      run: LLVM_PROFILE_FILE=qspi.profraw ./build/bin/qspi_tests
+    - name: Enforce 100% line and branch coverage
+      run: |
+        llvm-profdata merge -sparse qspi.profraw -o qspi.profdata
+        llvm-cov report ./build/bin/qspi_tests -instr-profile=qspi.profdata src/*.cpp
+        SUMMARY=$(llvm-cov export ./build/bin/qspi_tests -instr-profile=qspi.profdata -summary-only src/*.cpp)
+        LINES=$(echo "$SUMMARY" | jq '.data[0].totals.lines.percent')
+        BRANCHES=$(echo "$SUMMARY" | jq '.data[0].totals.branches.percent')
+        echo "line coverage: $LINES%  branch coverage: $BRANCHES%"
+        test "$(echo "$SUMMARY" | jq '.data[0].totals.lines.percent >= 100 and .data[0].totals.branches.percent >= 100')" = "true"
   publish:
-    needs: [windows-x86_64, windows-arm64, macos, linux-x86_64, linux-arm64]
+    needs: [windows-x86_64, windows-arm64, macos, linux-x86_64, linux-arm64, coverage]
     runs-on: ubuntu-latest
     steps:
     - name: download individual builds

@@ -107,6 +107,21 @@ ctest --test-dir build -C Release --output-on-failure
 
 Tests build by default; disable with `-DQSPI_BUILD_TESTS=OFF`. CI runs them on every platform.
 
+### Coverage gate
+
+CI enforces **100% line and 100% branch coverage** of `src/*.cpp` (no exclusions) using clang's source-based coverage (`llvm-cov`). To reproduce locally on Linux:
+
+```bash
+cmake -B build-cov -DCMAKE_BUILD_TYPE=Debug -DQSPI_COVERAGE=ON \
+      -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake --build build-cov --target qspi_tests
+LLVM_PROFILE_FILE=qspi.profraw ./build-cov/bin/qspi_tests
+llvm-profdata merge -sparse qspi.profraw -o qspi.profdata
+llvm-cov report ./build-cov/bin/qspi_tests -instr-profile=qspi.profdata src/*.cpp
+```
+
+(`-DQSPI_COVERAGE=ON` with gcc falls back to gcov `--coverage` instrumentation.)
+
 ## CI
 
 `.github/workflows/build.yml` (from the Saleae template) builds Windows, macOS (x64 + ARM64), and Linux binaries on every push; tagged commits publish a GitHub release with the binaries attached.

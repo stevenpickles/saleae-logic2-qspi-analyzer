@@ -160,7 +160,8 @@ void QuadSpiSimulationDataGenerator::CreateTransaction()
 
     if( mSettings->mAddressBits > 0 )
     {
-        U64 address_mask = mSettings->mAddressBits >= 64 ? ~0ull : ( 1ull << mSettings->mAddressBits ) - 1;
+        // mAddressBits is 8..32 here, so the shift cannot overflow
+        U64 address_mask = ( 1ull << mSettings->mAddressBits ) - 1;
         OutputBits( kSimulatedAddress & address_mask, mSettings->mAddressBits, mSettings->mAddressBusWidth, false );
     }
 

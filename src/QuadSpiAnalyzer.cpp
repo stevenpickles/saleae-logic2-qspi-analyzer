@@ -67,9 +67,12 @@ void QuadSpiAnalyzer::AdvanceToActiveChipSelectEdge()
 
 bool QuadSpiAnalyzer::WouldAdvancingTheClockToggleChipSelect()
 {
-    // handle the end-of-capture case where the clock never transitions again but chip select still deasserts,
-    // so the final transaction can be closed without waiting for a clock edge that never comes
-    if( !mClock->DoMoreTransitionsExistInCurrentData() && mChipSelect->GetBitState() == mSettings.mChipSelectActiveState )
+    // handle the case where no more clock transitions exist in the currently streamed data but
+    // chip select still deasserts, so the final transaction can be closed without waiting for a
+    // clock edge that never comes. During live streaming the blocking position query below may
+    // observe clock data that arrives after the DoMoreTransitions check, in which case decoding
+    // simply continues.
+    if( !mClock->DoMoreTransitionsExistInCurrentData() )
     {
         U64 next_chip_select_edge = mChipSelect->GetSampleOfNextEdge();
         if( !mClock->WouldAdvancingToAbsPositionCauseTransition( next_chip_select_edge ) )
